@@ -13,9 +13,9 @@ type App struct {
 
 func NewApp() *App {
 	cl := &http.Client{}
-	service := new(service.Service)
-	re := regexp.MustCompile(`.*/(.*)`)
-	downloader := download.NewDownloader(cl, service, re)
+	re := regexp.MustCompile(`([^/]+)\.([^/?]+)(\?.*)?$`)
+	service := service.NewService(re)
+	downloader := download.NewDownloader(cl, service)
 	return &App{
 		D: downloader,
 	}
