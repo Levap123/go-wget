@@ -8,7 +8,7 @@ import (
 
 type Service struct{}
 
-func (s *Service) GetFile(name, path string, src io.ReadCloser) error {
+func (s *Service) GetFileWithContentLength(name, path string, src io.ReadCloser) error {
 	file, err := os.Create(path + name)
 	if err != nil {
 		return fmt.Errorf("fail in getting file - %w", err)

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"go-wget/internal/app"
+	"log"
 	"os"
 )
 
@@ -12,5 +13,7 @@ func main() {
 	}
 	app := app.NewApp()
 	link := os.Args[1]
-	app.D.Download(link, "")
+	if err := app.D.Download(link, ""); err != nil {
+		log.Fatal(err)
+	}
 }
