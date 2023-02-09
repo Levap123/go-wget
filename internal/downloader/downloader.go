@@ -37,8 +37,10 @@ func (d *Downloader) Download(url, path string) error {
 
 	size, _ := strconv.Atoi(resp.Header.Get("Content-Length"))
 
-	bar := pb.New(int(size)).SetRefreshRate(time.Second * 5)
-
+	bar := pb.New(int(size)).SetRefreshRate(time.Second).SetUnits(pb.U_BYTES)
+	bar.ShowSpeed = true
+	bar.ShowTimeLeft = true
+	bar.Prefix(filename[1] + "         ")
 	bar.Start()
 	reader := bar.NewProxyReader(resp.Body)
 	if err := d.service.GetFileWithContentLength(filename[1], path, reader); err != nil {
