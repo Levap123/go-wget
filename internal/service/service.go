@@ -26,9 +26,17 @@ func (s *Service) GetFilename(url string) string {
 }
 
 func (s *Service) GetFileWithContentLength(name, path string, src io.ReadCloser) error {
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		err = os.MkdirAll(path, 0755)
+		if err != nil {
+			return err
+		}
+	}
+
 	file, err := os.Create(path + name)
 	if err != nil {
-		return fmt.Errorf("fail in getting file - %w", err)
+		return fmt.Errorf("fail in creating file - %w", err)
 	}
 
 	if _, err := io.Copy(file, src); err != nil {
