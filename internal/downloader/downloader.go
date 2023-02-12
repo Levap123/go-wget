@@ -38,18 +38,8 @@ func (d *Downloader) Download(url, path string) error {
 	}
 	defer resp.Body.Close()
 
-	if filename == "" {
-		// // TODO
-		// // GET FILENAME FROM CONTENT TYPE
-		// contentType := resp.Header.Get("Content-Type")
-		// ext, err := mime.ExtensionsByType(contentType)
-		// if err != nil {
-		// 	return err
-		// }
-		// fmt.Println(ext)
-		filename = "test"
-	}
-
+	contentType := resp.Header.Get("Content-Type")
+	filename = d.service.DefineFilename(filename, contentType)
 	fmt.Println(resp.Status)
 
 	size, _ := strconv.Atoi(resp.Header.Get("Content-Length"))
@@ -59,13 +49,21 @@ func (d *Downloader) Download(url, path string) error {
 	}
 
 	fmt.Printf("saving file to: %s\n", path+filename)
-	var bar *pb.ProgressBar
-	if size > 0 {
-		bar = pb.New(size).SetRefreshRate(time.Second).SetUnits(pb.U_BYTES)
-	} else {
-		bar = pb.New(0).SetRefreshRate(time.Second).SetUnits(pb.U_BYTES)
+
+	if size == -1 {
+		bar := pb.New64(0).SetRefreshRate(time.Second)
+		bar.Prefix(filename + "        ")
+		bar.Start()
+
+		reader := bar.NewProxyReader(resp.Body)
+		if err := d.service.GetFileWithContentLength(filename, path, reader); err != nil {
+			return err
+		}
+		bar.Finish()
+		return nil
 	}
 
+	bar := pb.New(int(size)).SetRefreshRate(time.Second).SetUnits(pb.U_BYTES)
 	bar.ShowSpeed = true
 	bar.ShowTimeLeft = true
 	bar.Prefix(filename + "         ")
