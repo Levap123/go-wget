@@ -39,18 +39,33 @@ func (d *Downloader) Download(url, path string) error {
 	defer resp.Body.Close()
 
 	if filename == "" {
-		// TODO
-		// GET FILENAME FROM CONTENT TYPE
+		// // TODO
+		// // GET FILENAME FROM CONTENT TYPE
+		// contentType := resp.Header.Get("Content-Type")
+		// ext, err := mime.ExtensionsByType(contentType)
+		// if err != nil {
+		// 	return err
+		// }
+		// fmt.Println(ext)
+		filename = "test"
 	}
 
 	fmt.Println(resp.Status)
 
 	size, _ := strconv.Atoi(resp.Header.Get("Content-Length"))
 
-	fmt.Printf("content size: %d [~%fMB]\n", size, utils.ToMB(size))
-	fmt.Printf("saving file to: %s\n", path+filename)
+	if size != -1 {
+		fmt.Printf("content size: %d [~%fMB]\n", size, utils.ToMB(size))
+	}
 
-	bar := pb.New(int(size)).SetRefreshRate(time.Second).SetUnits(pb.U_BYTES)
+	fmt.Printf("saving file to: %s\n", path+filename)
+	var bar *pb.ProgressBar
+	if size > 0 {
+		bar = pb.New(size).SetRefreshRate(time.Second).SetUnits(pb.U_BYTES)
+	} else {
+		bar = pb.New(0).SetRefreshRate(time.Second).SetUnits(pb.U_BYTES)
+	}
+
 	bar.ShowSpeed = true
 	bar.ShowTimeLeft = true
 	bar.Prefix(filename + "         ")

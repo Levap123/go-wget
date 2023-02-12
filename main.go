@@ -22,7 +22,7 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Println(absPath)
+
 	app := app.NewApp()
 	link := os.Args[len(os.Args)-1]
 
