@@ -26,7 +26,6 @@ func (s *Service) GetFilename(url string) string {
 }
 
 func (s *Service) GetFileWithContentLength(name, path string, src io.ReadCloser) error {
-
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		err = os.MkdirAll(path, 0755)
 		if err != nil {
@@ -51,7 +50,6 @@ func (s *Service) GetFileWithContentLength(name, path string, src io.ReadCloser)
 }
 
 func (s *Service) GetFileWithoutContentLength(name, path string, src io.Reader) error {
-
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		err = os.MkdirAll(path, 0755)
 		if err != nil {

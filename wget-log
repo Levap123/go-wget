@@ -1,0 +1,8 @@
+starts at 2023-02-13 12:42:16
+sending request, awaiting response... 200 OK
+content size: 56370 [~0.053759MB]
+saving file to: /home/student/code/go-wget/EMtmPFLWkAA8CIS.jpg
+EMtmPFLWkAA8CIS.jpg          0 B / 55.05 KiB [----------------------------------------------------------------------------------------------------------------]   0.00%EMtmPFLWkAA8CIS.jpg          55.05 KiB / 55.05 KiB [==========================================================================================] 100.00% 620.85 KiB/s 0s
+
+Downloaded [https://pbs.twimg.com/media/EMtmPFLWkAA8CIS.jpg]
+finished at 2023-02-13 12:42:17

@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"go-wget/internal/app"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -13,10 +14,24 @@ import (
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("incorrect usage: go run . [OPTION]... [URL]...")
+		return
 	}
 
+	var writer io.Writer
 	path := flag.String("P", "", "path of the downloaded file")
+	isLog := flag.Bool("B", false, "define output of downloaded file")
 	flag.Parse()
+
+	if *isLog {
+		file, err := os.Create("wget-log")
+		if err != nil {
+			log.Fatalln(err)
+		}
+		writer = file
+		fmt.Println(`Output will be written to "wget-log".`)
+	} else {
+		writer = os.Stdout
+	}
 
 	absPath, err := expandPath(*path)
 	if err != nil {
@@ -26,8 +41,8 @@ func main() {
 	app := app.NewApp()
 	link := os.Args[len(os.Args)-1]
 
-	if err := app.D.Download(link, absPath); err != nil {
-		log.Fatal(err)
+	if err := app.D.Download(link, absPath, writer); err != nil {
+		log.Fatalln(err)
 	}
 }
 

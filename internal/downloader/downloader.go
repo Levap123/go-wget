@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go-wget/internal/service"
 	utils "go-wget/pkg"
+	"io"
 	"net/http"
 	"strconv"
 	"time"
@@ -23,11 +24,11 @@ func NewDownloader(cl *http.Client, service *service.Service) *Downloader {
 	}
 }
 
-func (d *Downloader) Download(url, path string) error {
+func (d *Downloader) Download(url, path string, w io.Writer) error {
 	filename := d.service.GetFilename(url)
 
-	fmt.Printf("starts at %v\n", time.Now().Format("2006-01-02 15:04:05"))
-	fmt.Printf("sending request, awaiting response... ")
+	fmt.Fprintf(w, "starts at %v\n", time.Now().Format("2006-01-02 15:04:05"))
+	fmt.Fprintf(w, "sending request, awaiting response... ")
 
 	resp, err := d.httpClient.Get(url)
 	if resp == nil {
@@ -40,30 +41,31 @@ func (d *Downloader) Download(url, path string) error {
 
 	contentType := resp.Header.Get("Content-Type")
 	filename = d.service.DefineFilename(filename, contentType)
-	fmt.Println(resp.Status)
+	fmt.Fprintln(w, resp.Status)
 
 	size, _ := strconv.Atoi(resp.Header.Get("Content-Length"))
 
 	if size != -1 {
-		fmt.Printf("content size: %d [~%fMB]\n", size, utils.ToMB(size))
+		fmt.Fprintf(w, "content size: %d [~%fMB]\n", size, utils.ToMB(size))
 	}
 
-	fmt.Printf("saving file to: %s\n", path+filename)
+	fmt.Fprintf(w, "saving file to: %s\n", path+filename)
 
-	if size == -1 {
-		bar := pb.New64(0).SetRefreshRate(time.Second)
-		bar.Prefix(filename + "        ")
-		bar.Start()
+	// if size == -1 {
+	// 	bar := pb.New64(0).SetRefreshRate(time.Second)
+	// 	bar.Prefix(filename + "        ")
+	// 	bar.Start()
 
-		reader := bar.NewProxyReader(resp.Body)
-		if err := d.service.GetFileWithContentLength(filename, path, reader); err != nil {
-			return err
-		}
-		bar.Finish()
-		return nil
-	}
+	// 	reader := bar.NewProxyReader(resp.Body)
+	// 	if err := d.service.GetFileWithContentLength(filename, path, reader); err != nil {
+	// 		return err
+	// 	}
+	// 	bar.Finish()
+	// 	return nil
+	// }
 
 	bar := pb.New(int(size)).SetRefreshRate(time.Second).SetUnits(pb.U_BYTES)
+	bar.Output = w
 	bar.ShowSpeed = true
 	bar.ShowTimeLeft = true
 	bar.Prefix(filename + "         ")
@@ -75,7 +77,7 @@ func (d *Downloader) Download(url, path string) error {
 	}
 	bar.Finish()
 
-	fmt.Printf("\nDownloaded [%s]\n", url)
-	fmt.Printf("finished at %v\n", time.Now().Format("2006-01-02 15:04:05"))
+	fmt.Fprintf(w, "\nDownloaded [%s]\n", url)
+	fmt.Fprintf(w, "finished at %v\n", time.Now().Format("2006-01-02 15:04:05"))
 	return nil
 }
