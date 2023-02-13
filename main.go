@@ -20,6 +20,7 @@ func main() {
 	var writer io.Writer
 	path := flag.String("P", "", "path of the downloaded file")
 	isLog := flag.Bool("B", false, "define output of downloaded file")
+	filename := flag.String("O", "", "set filename of downloaded file")
 	flag.Parse()
 
 	if *isLog {
@@ -29,6 +30,7 @@ func main() {
 		}
 		writer = file
 		fmt.Println(`Output will be written to "wget-log".`)
+		defer file.Close()
 	} else {
 		writer = os.Stdout
 	}
@@ -41,7 +43,7 @@ func main() {
 	app := app.NewApp()
 	link := os.Args[len(os.Args)-1]
 
-	if err := app.D.Download(link, absPath, writer); err != nil {
+	if err := app.D.Download(link, absPath, *filename, writer); err != nil {
 		log.Fatalln(err)
 	}
 }

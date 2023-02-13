@@ -24,9 +24,11 @@ func NewDownloader(cl *http.Client, service *service.Service) *Downloader {
 	}
 }
 
-func (d *Downloader) Download(url, path string, w io.Writer) error {
-	filename := d.service.GetFilename(url)
-
+func (d *Downloader) Download(url, path, filename string, w io.Writer) error {
+	if filename == "" {
+		filename = d.service.GetFilename(url)
+	}
+	
 	fmt.Fprintf(w, "starts at %v\n", time.Now().Format("2006-01-02 15:04:05"))
 	fmt.Fprintf(w, "sending request, awaiting response... ")
 
