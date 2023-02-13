@@ -1,0 +1,7 @@
+*.log
+*.txt
+*.png
+*.jpeg
+*.pdf
+wget-log
+*.gz

@@ -4,11 +4,10 @@ import (
 	"flag"
 	"fmt"
 	"go-wget/internal/app"
+	utils "go-wget/pkg"
 	"io"
 	"log"
 	"os"
-	"path/filepath"
-	"strings"
 )
 
 func main() {
@@ -35,31 +34,18 @@ func main() {
 		writer = os.Stdout
 	}
 
-	absPath, err := expandPath(*path)
+	absPath, err := utils.ExpandPath(*path)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	app := app.NewApp()
+	app, err := app.NewApp(500000000)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	link := os.Args[len(os.Args)-1]
 
 	if err := app.D.Download(link, absPath, *filename, writer); err != nil {
 		log.Fatalln(err)
 	}
-}
-
-func expandPath(dest string) (string, error) {
-	if strings.HasPrefix(dest, "~") {
-		homeDir, err := os.UserHomeDir()
-		if err != nil {
-			return "", err
-		}
-		return strings.Replace(dest, "~", homeDir, 1) + "/", nil
-	}
-
-	abs, err := filepath.Abs(dest)
-	if err != nil {
-		return "", err
-	}
-	return abs + "/", nil
 }
